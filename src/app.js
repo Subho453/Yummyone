@@ -61,6 +61,10 @@ app.use(
 // v1 api routes
 app.use('/api', routes);
 
+app.get('/', (req, res) => {
+  res.send('Welcome to Yummyone');
+});
+
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
   next(new ApiError(httpStatus.NOT_FOUND, 'Not found'));

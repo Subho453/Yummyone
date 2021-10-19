@@ -12,7 +12,7 @@ const swaggerDef = {
   },
   servers: [
     {
-      url: `http://localhost:${config.port}/api`,
+      url: config.env === 'development' ? `http://localhost:${config.port}/api` : 'http://api.yummyone.online/api',
     },
   ],
 };
