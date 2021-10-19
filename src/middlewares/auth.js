@@ -3,7 +3,8 @@ const httpStatus = require('http-status');
 const ApiError = require('../utils/ApiError');
 
 const roleConfig = {
-  master: ['managePayment'],
+  admin: ['getVendors', 'manageVendor'],
+  master: ['getVendors', 'manageVendor'],
 };
 
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
@@ -12,12 +13,12 @@ const verifyCallback = (req, resolve, reject, requiredRights) => async (err, use
   }
   req.user = user;
 
-  const hasRequiredRights = ['admin', 'master'].some((role) => role === user.role);
+  const hasRequiredRights = Object.keys(roleConfig).some((role) => role === user.role);
   if (!hasRequiredRights) {
     return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
   } else {
     const role = user.role;
-    if (requiredRights.length > 0 && roleConfig[role].includes(requiredRights)) {
+    if (requiredRights.length > 0 && !roleConfig[role].includes(requiredRights)) {
       return reject(new ApiError(httpStatus.FORBIDDEN, 'Forbidden'));
     }
   }

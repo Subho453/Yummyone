@@ -45,14 +45,16 @@ passport.use('jwt', jwtStrategy);
 // create a rotating write stream
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d', // rotate daily
-  path: path.join(__dirname, 'log'),
+  path: path.join(__dirname, '../log'),
 });
 
 // setup the logger
+const errorResponseFormat = `:remote-addr - :method :url :status - :response-time ms - message: :message`;
+morgan.token('message', (req, res) => res.locals.errorStack || '');
 app.use(
-  morgan('combined', {
-    stream: accessLogStream,
+  morgan(errorResponseFormat, {
     skip: (req, res) => res.statusCode < 400,
+    stream: accessLogStream,
   })
 );
 

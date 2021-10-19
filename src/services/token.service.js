@@ -32,14 +32,28 @@ const generateToken = (userId, expires, type, secret = config.jwt.secret) => {
  * @returns {Promise<Token>}
  */
 const saveToken = async (token, userId, expires, type, blacklisted = false) => {
-  const tokenDoc = await Token.create({
-    token,
-    user: userId,
-    expires: expires.toDate(),
+  const userToken = await Token.findOne({
     type,
-    blacklisted,
+    user: userId,
   });
-  return tokenDoc;
+  if (!userToken) {
+    const tokenDoc = await Token.create({
+      token,
+      user: userId,
+      expires: expires.toDate(),
+      type,
+      blacklisted,
+    });
+    return tokenDoc;
+  } else {
+    Object.assign(userToken, {
+      token,
+      expires: expires.toDate(),
+    });
+    await userToken.save();
+
+    return userToken;
+  }
 };
 
 /**

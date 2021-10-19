@@ -12,7 +12,7 @@ components:
           type: string
         role:
           type: string
-          enum: [admin,master]
+          enum: [admin, master]
         is_active:
           type: boolean
       example:
@@ -21,6 +21,84 @@ components:
         name: fake name
         role: admin
         is_active: true
+
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        type:
+          type: string
+          enum: [restaurant, fastFood, homemade, grocery]
+        commission:
+          type: decimal
+        mobile:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        open_time:
+          type: string
+        close_time:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        is_online:
+          type: boolean
+        is_active:
+          type: boolean
+      example:
+        id: 616c78aa040399dcb24dc158
+        email: abc@example.com
+        name: ABC Plaza
+        type: restaurant
+        commission: 0.2
+        mobile: '+918494747884'
+        city: Bengaluru
+        state: Karnataka
+        address: Sector V, Near Pizza Hut, HSR Layout
+        open_time: 09:00
+        close_time: 18:00
+        createdAt: 2021-10-17T19:25:30.307Z
+        updatedAt: 2021-10-17T19:25:30.307Z
+        is_active: false
+        is_online: false
+
+    VendorList:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        mobile:
+          type: string
+        is_online:
+          type: boolean
+        is_active:
+          type: boolean
+      example:
+        id: 616c78aa040399dcb24dc158
+        email: abc@example.com
+        name: ABC Plaza
+        mobile: '+918494747884'
+        is_active: false
+        is_online: false
 
     Token:
       type: object
