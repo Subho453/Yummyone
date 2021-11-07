@@ -1,5 +1,6 @@
 const express = require('express');
 const validate = require('../middlewares/validate');
+const auth = require('../middlewares/auth');
 const authValidation = require('../validations/auth.validation');
 const authController = require('../controllers/auth.controller');
 
@@ -9,17 +10,13 @@ router.post('/register', validate(authValidation.register), authController.regis
 router.post('/login', validate(authValidation.login), authController.login);
 router.post('/logout', validate(authValidation.logout), authController.logout);
 router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
+router.get('/login-check', auth(), authController.loginCheck);
 
 module.exports = router;
-/**
- * @swagger
- * tags:
- *   name: Authentication
- */
 
 /**
  * @swagger
- * /auth/register:
+ * /admin/v1/register:
  *   post:
  *     summary: Register as Admin or Master
  *     tags: [Admin Members]
@@ -72,7 +69,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /auth/login:
+ * /admin/v1/login:
  *   post:
  *     summary: Login
  *     tags: [Admin Members]
@@ -120,7 +117,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /auth/logout:
+ * /admin/v1/logout:
  *   post:
  *     summary: Logout
  *     tags: [Admin Members]
@@ -146,7 +143,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /auth/refresh-tokens:
+ * /admin/v1/refresh-tokens:
  *   post:
  *     summary: Refresh auth tokens
  *     tags: [Admin Members]

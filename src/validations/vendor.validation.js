@@ -5,7 +5,9 @@ const createVendor = {
   body: Joi.object().keys({
     name: Joi.string().required(),
     email: Joi.string().required().email(),
-    type: Joi.string().required().valid('restaurant', 'fastFood', 'homemade', 'grocery'),
+    type: Joi.string()
+      .required()
+      .valid(vendorTypes.RESTAURANT, vendorTypes.FAST_FOOD, vendorTypes.HOMEMADE, vendorTypes.GROCERY),
     mobile: Joi.string()
       .required()
       .regex(/^(\+\d{1,3})\d{10}$/),
@@ -22,12 +24,23 @@ const createVendor = {
   }),
 };
 
+const login = {
+  query: Joi.object().keys({
+    code: Joi.string()
+      .required()
+      .regex(/^\d{1,3}$/),
+    mobile: Joi.string()
+      .required()
+      .regex(/^\d{10}$/),
+  }),
+};
+
 const getVendors = {
   query: Joi.object().keys({
-    type: Joi.string().valid('restaurant', 'fastFood', 'homemade', 'grocery'),
+    type: Joi.string().required().valid('restaurant', 'fastFood', 'homemade', 'grocery'),
     sortBy: Joi.string(),
-    limit: Joi.number().integer().required(),
-    page: Joi.number().integer(),
+    limit: Joi.number().integer(),
+    page: Joi.number().integer().default(1),
   }),
 };
 
@@ -69,10 +82,89 @@ const deleteVendor = {
   }),
 };
 
+const submitDocuments = {
+  params: Joi.object().keys({
+    vendorId: Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .required(),
+  }),
+  body: Joi.object()
+    .keys({
+      aadharCard: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+        number: Joi.number().required(),
+      }),
+      panCard: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+        number: Joi.number().required(),
+      }),
+      fssai: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+        number: Joi.number().required(),
+      }),
+      gst: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+        number: Joi.number().required(),
+      }),
+      certificate: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+        number: Joi.number().required(),
+      }),
+      storeFront: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+      }),
+      bankInfo: Joi.object().keys({
+        docs: Joi.array().max(3).required(),
+        number: Joi.number().required(),
+        acc_name: Joi.string().required(),
+        branch_name: Joi.string().required(),
+        branch_address: Joi.string().required(),
+        ifsc: Joi.string()
+          .required()
+          .regex(/^[A-Z0-9]{11}$/),
+      }),
+    })
+    .min(1),
+};
+
+const updateDocument = {
+  params: Joi.object().keys({
+    vendorId: Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .required(),
+  }),
+  query: Joi.object()
+    .keys({
+      type: Joi.string().required(),
+    })
+    .required(),
+  body: Joi.object()
+    .keys({
+      status: Joi.string().valid('pending', 'rejected', 'approved'),
+      comments: Joi.string().trim(),
+    })
+    .min(1),
+};
+
+const getDocuments = {
+  params: Joi.object().keys({
+    vendorId: Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .required(),
+  }),
+  query: Joi.object().keys({
+    types: Joi.string(),
+  }),
+};
+
 module.exports = {
   createVendor,
+  login,
   getVendors,
   getVendor,
   updateVendor,
   deleteVendor,
+  submitDocuments,
+  updateDocument,
+  getDocuments,
 };

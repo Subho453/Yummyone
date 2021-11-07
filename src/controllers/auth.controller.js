@@ -1,8 +1,6 @@
 const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
-const {
-  authService, tokenService
-} = require('../services');
+const { authService, tokenService } = require('../services');
 
 const register = catchAsync(async (req, res) => {
   const admin = await authService.createAdmin(req.body);
@@ -15,7 +13,7 @@ const register = catchAsync(async (req, res) => {
       role: admin.role,
       is_active: admin.is_active,
     },
-    tokens
+    tokens,
   });
 });
 
@@ -31,7 +29,7 @@ const login = catchAsync(async (req, res) => {
       role: admin.role,
       is_active: admin.is_active,
     },
-    tokens
+    tokens,
   });
 });
 
@@ -41,8 +39,31 @@ const logout = catchAsync(async (req, res) => {
 });
 
 const refreshTokens = catchAsync(async (req, res) => {
-  const tokens = await authService.refreshAuth(req.body.refreshToken);
-  res.send({ ...tokens });
+  const data = await authService.refreshAuth(req.body.refreshToken);
+  const admin = data.user;
+  res.send({
+    admin: {
+      id: admin._id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      is_active: admin.is_active,
+    },
+    tokens: data.tokens,
+  });
+});
+
+const loginCheck = catchAsync(async (req, res) => {
+  const admin = req.user;
+  res.send({
+    admin: {
+      id: admin._id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      is_active: admin.is_active,
+    },
+  });
 });
 
 module.exports = {
@@ -50,4 +71,5 @@ module.exports = {
   login,
   logout,
   refreshTokens,
+  loginCheck,
 };

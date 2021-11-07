@@ -56,7 +56,7 @@ const VendorSchema = mongoose.Schema(
       default: false,
     },
     commission: {
-      type: mongoose.Types.Decimal128,
+      type: Number,
       default: 0.2,
     },
   },

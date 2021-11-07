@@ -1,18 +1,17 @@
 const httpStatus = require('http-status');
-const { Vendor } = require('../models');
+const { Vendor, VendorDocs } = require('../models');
 const ApiError = require('../utils/ApiError');
+const remove = require('../utils/remove');
 
 const createVendor = async (vendorBody) => {
-  if ((await Vendor.isEmailTaken(vendorBody.email)) || (await Vendor.isEmailTaken(vendorBody.mobile))) {
+  if ((await Vendor.isEmailTaken(vendorBody.email)) || (await Vendor.isMobileExist(vendorBody.mobile))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Vendor already exists');
   }
   return Vendor.create(vendorBody);
 };
 
 const getVendors = async (options) => {
-  const limit = options.limit;
   const filter = { type: options.type };
-  const skip = (options.page - 1) * limit;
   let sortBy = 'createdAt';
   if (options.sortBy) {
     const sortingCriteria = [];
@@ -23,14 +22,24 @@ const getVendors = async (options) => {
     sortBy = sortingCriteria.join(' ');
   }
   const totalResults = await Vendor.countDocuments(filter).exec();
-  const vendors = await Vendor.find(filter).sort(sortBy).skip(skip).limit(limit);
-  const totalPages = Math.ceil(totalResults / limit);
+  const data = {};
+  let query = Vendor.find(filter).sort(sortBy);
+  data['totalCount'] = totalResults;
+  if (options.page && options.limit) {
+    const skip = (options.page - 1) * options.limit;
+    query = query.skip(skip);
+  }
+  if (options.limit) {
+    const limit = options.limit;
+    query = query.limit(limit);
+    data['totalPages'] = Math.ceil(totalResults / limit);
+    data['limit'] = limit;
+  }
+  const vendors = await query;
   return {
-    count: totalResults,
-    totalPages,
-    page: options.page,
-    limit,
-    vendors: vendors.map((ele) => ({
+    ...data,
+    vendors: vendors.map((ele, i) => ({
+      key: i + 1,
       id: ele.id,
       name: ele.name,
       email: ele.email,
@@ -43,6 +52,14 @@ const getVendors = async (options) => {
 
 const getVendorById = async (id) => {
   const vendor = await Vendor.findById(id);
+  if (!vendor) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found');
+  }
+  return vendor;
+};
+
+const getVendorByMobile = async (mobile) => {
+  const vendor = await Vendor.findOne({ mobile });
   if (!vendor) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found');
   }
@@ -74,10 +91,69 @@ const deleteVendorById = async (vendorId) => {
   return vendor;
 };
 
+const getDocuments = async (vendor, types = []) => {
+  let docs;
+  if (types.length > 0) {
+    docs = await VendorDocs.find({ vendor, type: { $in: types.split(',') } });
+  } else {
+    docs = await VendorDocs.find({ vendor });
+  }
+  console.log(remove(docs, ['_id', 'vendorId', '__v', 'createdAt', 'updatedAt']));
+  return remove(docs, ['_id', 'vendorId', '__v', 'createdAt', 'updatedAt']);
+};
+
+const submitDocuments = async (vendorId, payload) => {
+  const vendor = await getVendorById(vendorId);
+  if (!vendor) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Vendor not found');
+  }
+  const insert = [];
+  const upload = [];
+  const promise = Object.keys(payload).map(async (type) => {
+    const vendordoc = await VendorDocs.isDocExist(vendorId, type);
+    if (!!vendordoc) {
+      Object.assign(vendordoc, { ...payload[type], status: 'pending', comments: '' });
+      await vendordoc.save();
+      upload.push(vendordoc);
+    } else {
+      const data = {
+        vendor: vendorId,
+        type,
+        ...payload[type],
+      };
+      insert.push(data);
+    }
+  });
+  await Promise.all(promise);
+  let result = {};
+  if (insert.length > 0) {
+    const values = await VendorDocs.insertMany(insert);
+    result = remove(values, ['_id', 'vendor', '__v', 'createdAt', 'updatedAt']);
+  }
+  if (upload.length > 0) {
+    result = { ...result, ...remove(upload, ['_id', 'vendor', '__v', 'createdAt', 'updatedAt']) };
+  }
+  return result;
+};
+
+const updateDocument = async (vendorId, type, payload) => {
+  const vendordoc = await VendorDocs.isDocExist(vendorId, type);
+  if (!vendordoc) {
+    throw new ApiError(httpStatus.NOT_FOUND, `Vendor ${type} not found`);
+  }
+  Object.assign(vendordoc, payload);
+  await vendordoc.save();
+  return vendordoc;
+};
+
 module.exports = {
   createVendor,
   getVendors,
   getVendorById,
+  getVendorByMobile,
   updateVendorById,
   deleteVendorById,
+  submitDocuments,
+  getDocuments,
+  updateDocument,
 };

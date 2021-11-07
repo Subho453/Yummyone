@@ -8,13 +8,23 @@ const router = express.Router();
 
 router.post('/create', validate(vendorValidation.createVendor), vendorController.create);
 
-router.route('/').get(auth('getVendors'), validate(vendorValidation.getVendors), vendorController.getVendors);
+router.get('/login', validate(vendorValidation.login), vendorController.login);
+
+router
+  .route('/all-vendors')
+  .get(auth('admin', 'master'), validate(vendorValidation.getVendors), vendorController.getVendors);
 
 router
   .route('/:vendorId')
-  .get(auth('getVendors'), validate(vendorValidation.getVendor), vendorController.getVendor)
-  .patch(auth('manageVendor'), validate(vendorValidation.updateVendor), vendorController.updateVendor)
-  .delete(auth('manageVendor'), validate(vendorValidation.deleteVendor), vendorController.deleteVendor);
+  .get(auth('admin', 'master'), validate(vendorValidation.getVendor), vendorController.getVendor)
+  .patch(auth('vendor', 'admin', 'master'), validate(vendorValidation.updateVendor), vendorController.updateVendor)
+  .delete(auth('admin', 'master'), validate(vendorValidation.deleteVendor), vendorController.deleteVendor);
+
+router
+  .route('/documents/:vendorId')
+  .get(auth('vendor', 'admin', 'master'), validate(vendorValidation.getDocuments), vendorController.getDocuments)
+  .post(auth('vendor', 'admin', 'master'), validate(vendorValidation.submitDocuments), vendorController.submitDocuments)
+  .patch(auth('admin', 'master'), validate(vendorValidation.updateDocument), vendorController.updateDocument);
 
 module.exports = router;
 
@@ -27,7 +37,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /vendors/create:
+ * /vendors/v1/create:
  *   post:
  *     summary: Create a Vendor
  *     description: Only vendors, admins or masters can create vendors.
@@ -111,7 +121,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /vendors:
+ * /vendors/v1/all-vendors:
  *   get:
  *     summary: Get all Vendors
  *     description: Only admins or master users can retrieve all vendors.
@@ -175,7 +185,7 @@ module.exports = router;
 
 /**
  * @swagger
- * /vendors/{id}:
+ * /vendors/v1/{id}:
  *   get:
  *     summary: Get a vendor
  *     description: Only admins or master users can retrieve a vendor.
