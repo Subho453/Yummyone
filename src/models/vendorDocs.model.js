@@ -11,8 +11,7 @@ const VendorDocSchema = mongoose.Schema(
       required: true,
     },
     number: {
-      type: Number,
-      required: true,
+      type: String,
       unique: true,
     },
     comments: {

@@ -18,6 +18,11 @@ const getVendor = catchAsync(async (req, res) => {
   res.send(result);
 });
 
+const getMenu = catchAsync(async (req, res) => {
+  const result = await vendorService.getMenu(req.params.vendorId);
+  res.send(result);
+});
+
 const login = catchAsync(async (req, res) => {
   const mobile = '+' + req.query.code + req.query.mobile;
   const vendor = await vendorService.getVendorByMobile(mobile);
@@ -50,6 +55,32 @@ const getDocuments = catchAsync(async (req, res) => {
   res.send(results);
 });
 
+const fssaiVerify = catchAsync(async (req, res) => {
+  const results = await vendorService.fssaiVerify(req.body);
+  res.send(results);
+});
+
+const aadharOtpRequest = catchAsync(async (req, res) => {
+  const result = await vendorService.aadharOtpRequest(req.body.aadhaar_number);
+  console.log(result);
+  res.status(result.status).send(result.data);
+});
+
+const aadharOtpVerify = catchAsync(async (req, res) => {
+  const result = await vendorService.aadharOtpVerify(req.body.request_id, req.body.otp);
+  res.status(result.status).send(result.data);
+});
+
+const gstVerify = catchAsync(async (req, res) => {
+  const result = await vendorService.gstVerify(req.params.gst);
+  res.status(result.status).send(result.data);
+});
+
+const bankVerify = catchAsync(async (req, res) => {
+  const result = await vendorService.bankVerify(req.query.number, req.query.ifsc);
+  res.status(result.status).send(result.data);
+});
+
 module.exports = {
   create,
   login,
@@ -60,4 +91,10 @@ module.exports = {
   submitDocuments,
   updateDocument,
   getDocuments,
+  fssaiVerify,
+  aadharOtpRequest,
+  aadharOtpVerify,
+  gstVerify,
+  bankVerify,
+  getMenu,
 };

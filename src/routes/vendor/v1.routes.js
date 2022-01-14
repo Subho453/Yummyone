@@ -1,8 +1,8 @@
 const express = require('express');
-const auth = require('../middlewares/auth');
-const validate = require('../middlewares/validate');
-const vendorValidation = require('../validations/vendor.validation');
-const vendorController = require('../controllers/vendor.controller');
+const auth = require('../../middlewares/auth');
+const validate = require('../../middlewares/validate');
+const vendorValidation = require('../../validations/vendor.validation');
+const vendorController = require('../../controllers/vendor.controller');
 
 const router = express.Router();
 
@@ -21,10 +21,34 @@ router
   .delete(auth('admin', 'master'), validate(vendorValidation.deleteVendor), vendorController.deleteVendor);
 
 router
+  .route('/menu/:vendorId')
+  .get(auth('vendor', 'admin', 'master'), validate(vendorValidation.getMenu), vendorController.getMenu);
+
+router
   .route('/documents/:vendorId')
   .get(auth('vendor', 'admin', 'master'), validate(vendorValidation.getDocuments), vendorController.getDocuments)
   .post(auth('vendor', 'admin', 'master'), validate(vendorValidation.submitDocuments), vendorController.submitDocuments)
   .patch(auth('admin', 'master'), validate(vendorValidation.updateDocument), vendorController.updateDocument);
+
+router
+  .route('/fssai/verify')
+  .post(auth('vendor', 'admin', 'master'), validate(vendorValidation.fssaiVerify), vendorController.fssaiVerify);
+
+router
+  .route('/aadhar/otp/request')
+  .post(auth('vendor', 'admin', 'master'), validate(vendorValidation.aadharOtpRequest), vendorController.aadharOtpRequest);
+
+router
+  .route('/aadhar/otp/verify')
+  .post(auth('vendor', 'admin', 'master'), validate(vendorValidation.aadharOtpVerify), vendorController.aadharOtpVerify);
+
+router
+  .route('/gst/verify/:gst')
+  .get(auth('vendor', 'admin', 'master'), validate(vendorValidation.gstVerify), vendorController.gstVerify);
+
+router
+  .route('/bank/verify')
+  .get(auth('vendor', 'admin', 'master'), validate(vendorValidation.bankVerify), vendorController.bankVerify);
 
 module.exports = router;
 

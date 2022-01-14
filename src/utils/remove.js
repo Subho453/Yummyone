@@ -1,5 +1,6 @@
 const remove = (list, keys) =>
   list.reduce((acc, curr) => {
+    console.log(curr);
     keys.forEach((ele) => delete curr._doc[ele]);
     acc[curr.type] = curr._doc;
 

@@ -46,7 +46,17 @@ const getVendors = {
 
 const getVendor = {
   params: Joi.object().keys({
-    vendorId: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    vendorId: Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .required(),
+  }),
+};
+
+const getMenu = {
+  params: Joi.object().keys({
+    vendorId: Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .required(),
   }),
 };
 
@@ -91,34 +101,34 @@ const submitDocuments = {
   body: Joi.object()
     .keys({
       aadharCard: Joi.object().keys({
-        docs: Joi.array().max(3).required(),
-        number: Joi.number().required(),
+        // docs: Joi.array().max(3).required(),
+        number: Joi.string().required(),
       }),
       panCard: Joi.object().keys({
-        docs: Joi.array().max(3).required(),
-        number: Joi.number().required(),
+        // docs: Joi.array().max(3).required(),
+        number: Joi.string().required(),
       }),
       fssai: Joi.object().keys({
-        docs: Joi.array().max(3).required(),
-        number: Joi.number().required(),
+        // docs: Joi.array().max(3).required(),
+        number: Joi.string().required(),
       }),
       gst: Joi.object().keys({
-        docs: Joi.array().max(3).required(),
-        number: Joi.number().required(),
+        // docs: Joi.array().max(3).required(),
+        number: Joi.string().required(),
       }),
       certificate: Joi.object().keys({
         docs: Joi.array().max(3).required(),
-        number: Joi.number().required(),
+        number: Joi.string().required(),
       }),
       storeFront: Joi.object().keys({
         docs: Joi.array().max(3).required(),
       }),
       bankInfo: Joi.object().keys({
-        docs: Joi.array().max(3).required(),
-        number: Joi.number().required(),
+        // docs: Joi.array().max(3).required(),
+        number: Joi.string().required(),
         acc_name: Joi.string().required(),
-        branch_name: Joi.string().required(),
-        branch_address: Joi.string().required(),
+        branch_name: Joi.string(),
+        branch_address: Joi.string(),
         ifsc: Joi.string()
           .required()
           .regex(/^[A-Z0-9]{11}$/),
@@ -153,7 +163,47 @@ const getDocuments = {
       .required(),
   }),
   query: Joi.object().keys({
-    types: Joi.string(),
+    types: Joi.string().valid('aadharCard', 'panCard', 'fssai', 'gst', 'bankInfo'),
+  }),
+};
+
+const fssaiVerify = {
+  body: Joi.object().keys({
+    registration_no: Joi.string()
+      .regex(/^[0-9]{14}$/)
+      .required(),
+  }),
+};
+const aadharOtpRequest = {
+  body: Joi.object().keys({
+    aadhaar_number: Joi.string()
+      .regex(/^[0-9]{12}$/)
+      .required(),
+  }),
+};
+const aadharOtpVerify = {
+  body: Joi.object().keys({
+    request_id: Joi.string().required(),
+    otp: Joi.string()
+      .regex(/^[0-9]{6}$/)
+      .required(),
+  }),
+};
+
+const gstVerify = {
+  params: Joi.object().keys({
+    gst: Joi.string()
+      .regex(/^[0-9A-Z]{15}$/)
+      .required(),
+  }),
+};
+
+const bankVerify = {
+  query: Joi.object().keys({
+    number: Joi.string().required(),
+    ifsc: Joi.string()
+      .required()
+      .regex(/^[A-Z0-9]{11}$/),
   }),
 };
 
@@ -167,4 +217,10 @@ module.exports = {
   submitDocuments,
   updateDocument,
   getDocuments,
+  fssaiVerify,
+  aadharOtpRequest,
+  aadharOtpVerify,
+  gstVerify,
+  bankVerify,
+  getMenu,
 };

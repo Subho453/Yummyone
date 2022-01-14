@@ -47,4 +47,10 @@ module.exports = {
     resetPasswordExpirationMinutes: envVars.JWT_RESET_PASSWORD_EXPIRATION_MINUTES,
     verifyEmailExpirationMinutes: envVars.JWT_VERIFY_EMAIL_EXPIRATION_MINUTES,
   },
+  zoop: {
+    apiKey: '6DEYQKB-94DM7Z9-JCGKR8K-BCNY3Y3',
+    appId: '61a6dfb347e7e3001d48e779',
+    endpoint: 'https://test.zoop.one',
+    // liveendpoint: 'https://live.zoop.one',
+  },
 };

@@ -10,11 +10,6 @@ const swaggerDef = {
       name: 'MIT',
     },
   },
-  servers: [
-    {
-      url: config.env === 'development' ? `http://localhost:${config.port}/api` : 'http://api.yummyone.online/api',
-    },
-  ],
 };
 
 module.exports = swaggerDef;
