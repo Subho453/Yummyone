@@ -12,6 +12,7 @@
 # production
 /build
 /log
+~/.nvm
 
 # misc
 .DS_Store
